@@ -34,6 +34,7 @@
 #endif
 
 #define __REG(x)	(*(volatile long *)(x))
+#define __REGb(x)	(*(volatile char *)(x))
 
 /* S3C6400 device base addresses */
 #define ELFIN_DMA_BASE			0x75000000
@@ -654,7 +655,7 @@
 #define NFCONT_REG		__REG(ELFIN_NAND_BASE+NFCONT_OFFSET)
 #define NFCMD_REG		__REG(ELFIN_NAND_BASE+NFCMMD_OFFSET)
 #define NFADDR_REG           	__REG(ELFIN_NAND_BASE+NFADDR_OFFSET)
-#define NFDATA_REG          	__REG(ELFIN_NAND_BASE+NFDATA_OFFSET)
+#define NFDATA_REG          	__REGb(ELFIN_NAND_BASE+NFDATA_OFFSET)
 #define NFDATA8_REG          	__REGb(ELFIN_NAND_BASE+NFDATA_OFFSET)
 #define NFMECCDATA0_REG     	__REG(ELFIN_NAND_BASE+NFMECCDATA0_OFFSET)
 #define NFMECCDATA1_REG     	__REG(ELFIN_NAND_BASE+NFMECCDATA1_OFFSET)

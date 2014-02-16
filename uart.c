@@ -30,13 +30,12 @@ void uart_init(void)
 	GPACON_REG |= 0x22;
 	
 	/* ULCON0 */
-	ULCON0_REG = 0x3;  /* Êý¾ÝÎ»:8, ÎÞ½ÏÑé, Í£Ö¹Î»: 1, 8n1 */
-	UCON0_REG  = 0x5;  /* Ê¹ÄÜUART·¢ËÍ¡¢½ÓÊÕ */
-	UFCON0_REG = 0x01; /* FIFO ENABLE */
+	ULCON0_REG = 0x3;
+	UCON0_REG  = 0x5;
+	UFCON0_REG = 0x01;
 
 	UMCON0_REG = 0;
 	
-	/* ²¨ÌØÂÊ */
 	/* DIV_VAL = (PCLK / (bps x 16 ) ) - 1 
 	 * bps = 57600
 	 * DIV_VAL = (66500000 / (115200 x 16 ) ) - 1 

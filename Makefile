@@ -5,8 +5,8 @@ LD=$(CC_DIR)ld
 OBJCOPY=$(CC_DIR)objcopy
 OBJDUMP=$(CC_DIR)objdump
 
-main.elf:startup.o clk.o main.o sdram.o
-	$(LD) -T main.lds -o main.elf startup.o clk.o main.o sdram.o
+main.elf:startup.o clk.o main.o sdram.o nand.o
+	$(LD) -T main.lds -o main.elf startup.o main.o clk.o sdram.o nand.o
 	$(OBJCOPY) -O binary main.elf main.bin
 	$(OBJDUMP) -D main.elf > main.dis
 %.o:%.S

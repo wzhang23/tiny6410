@@ -20,18 +20,16 @@ _start:
 	bl sdram_init
 
 	/* relocation code and data sections */
-	adr r0, _start
-	ldr r1, =_start
+	adr r0, _start	/* _start current address: 0x0 */
+	ldr r1, =_start /* Link address: 0x50000000 */
+	ldr r2, =bss_start /* bss section start address */
+	sub r2, r2, r1
+	
 	cmp r0, r1
 	beq clean_bss
 
-	ldr r2, =bss_start
-copy_loop:
-	ldr r3, [r0], #4
-	str r3, [r1], #4
-	cmp r1, r2
-	bne copy_loop
-
+	bl copy2ddr
+	
 	/* clean bss section */
 clean_bss:
 	ldr r0, =bss_start
