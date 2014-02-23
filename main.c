@@ -9,21 +9,19 @@ void delay(INT32U ctr)
 	INT32U ix;
 
 	for(ix = 0; ix < ctr; ix++)
-		;
+		__asm__("MOV R0, R0");
 }
 
 INT32S main(void)
 {
 	i = 0xf0;
 
-	uart_init();
 	GPKDAT_REG = 0xf0;
 	GPKCON0_REG = (GPKCON0_REG & ~0xffff0000) | 0x11110000;
-	printf("Hello world!\n");
+	printf("Hello world!\n\r");
 
 	for(;;)
 	{
-		printf("Hello world\n");
 		if(0x00 == i)
 			i = 0xf0;
 		i -= 0x10;
@@ -32,4 +30,9 @@ INT32S main(void)
 	}
 
 	return 0;
+}
+
+void print_cpsr(INT16U cpsr, INT8U *str)
+{
+	printf("%s is: 0x%x\n\r", str, cpsr);
 }

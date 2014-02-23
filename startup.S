@@ -36,6 +36,9 @@ reset:
 	/* Initialize SDRAMC */
 	bl sdram_init
 
+	/* Initialize UART */
+	bl uart_init
+
 	/* relocation code and data sections */
 	adr r0, _start	/* _start current address: 0x0 */
 	ldr r1, =_start /* Link address: 0x50000000 */
@@ -59,15 +62,17 @@ clean_loop:
 	ldr pc, =on_ddr
 
 on_ddr:
+	/* Initialize needed interrupt */
+	bl irq_init
 	mrs r0, cpsr
-	bic r0, r0, #0x1f
+	bic r0, r0, #0x9f /* Enable IRQ */
 	orr r0, r0, #0x10
 	msr cpsr, r0 /* Enter user mode */
 
 	/* Initialize sp and call c funtion */
 	ldr sp, =0x50000000 + 0x10000000
 	ldr r1, =usr_str
-	/* bl print_cpsr */
+	bl print_cpsr
 
 	swi 0	/*
 				 * cpu enter svc mode
@@ -101,7 +106,7 @@ vector_und:
 	/* 2. Handle exp. */
 	mrs r0, cpsr
 	ldr r1, =und_str
-	/* bl print_cpsr */
+	bl print_cpsr
 	/* 3. Restore state */
 	ldmia sp!, {r0-r12, pc}^
 und_str:
@@ -114,7 +119,7 @@ vector_swi:
 	/* 2. Handle exp. */
 	mrs r0, cpsr
 	ldr r1, =swi_str
-	/* bl print_cpsr */
+	bl print_cpsr
 	/* 3. Restore state */
 	ldmia sp!, {r0-r12, pc}^ /* ^ means restore spsr to cpsr */
 swi_str:
@@ -123,9 +128,10 @@ swi_str:
 vector_irq:
 	/* 1. ... */
 	ldr sp, =0x54000000
-	sub lr, lr, #4
+	sub lr, lr, #4 /* Be different from other exp. */
 	stmdb sp!, {r0-r12, lr}
 	/* 2. ... */
+	bl do_irq
 	/* 2.1 Find interrupt source */
 	/* 2.2 Invoke ISR */
 	/* 3. ... */
