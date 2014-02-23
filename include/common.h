@@ -1,6 +1,15 @@
 #ifndef _COMMON_H_
 #define _COMMON_H_
 
+#ifndef NULL
+#define	NULL	0
+#endif
+
+#ifndef _SIZE_T
+#define _SIZE_T
+typedef unsigned int size_t;
+#endif
+
 /* data type define */
 typedef signed	 char				INT8S;
 typedef unsigned char				INT8U;
@@ -8,6 +17,25 @@ typedef signed	 short int	INT16S;
 typedef unsigned short int	INT16U;
 typedef signed	 long 			INT32S;
 typedef unsigned long 			INT32U;	
+
+#ifndef va_arg
+
+/*
+ * 	Storage alignment properties
+ */
+#define NATIVE_INT	int
+#define _AUPBND	(sizeof(NATIVE_INT) - 1)
+#define _ADNBND	(sizeof(NATIVE_INT) - 1)
+
+/*
+ * Variable argument list macro definitions
+ */
+#define _bnd(X, bnd)	(((sizeof(X)) + (bnd)) & (~(bnd)))
+#define va_arg(ap, T)	(*(T *)(((ap) += (_bnd (T, _AUPBND))) - (_bnd (T, _ADNBND))))
+#define va_end(ap)	(void)0
+#define va_start(ap, A)	(void)((ap) = (((char *) &(A)) + (_bnd (A, _AUPBND))))
+
+#endif /* va_arg */
 
 /* handy sizes */
 #define SZ_1K                           0x00000400
@@ -56,7 +84,5 @@ typedef volatile unsigned char	vu_char;
 void clock_init(void);
 /* uart function */
 void uart_init(void);
-void uart_putchar(INT8S ch);
-INT8S uart_getchar(void);
 
 #endif

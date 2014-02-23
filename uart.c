@@ -4,11 +4,11 @@
  *  inlucde file
  */
 #include "s3c6410.h"
-#include "uart.h"
+#include "common.h"
 
 /* Get char from uart buffer
  */
-INT8S uart_getchar(void)
+INT8S getc(void)
 {
 	while ((UFSTAT0_REG & (1<<6)) == 0 && (UFSTAT0_REG & 0x3f) == 0);
 	return URXH0_REG;
@@ -16,7 +16,7 @@ INT8S uart_getchar(void)
 
 /* Put char to uart tx buffer
  */
-void uart_putchar(INT8S ch)
+void putc(INT8S ch)
 {
 	while ((UFSTAT0_REG & (1<<14)));
 	UTXH0_REG = ch;
