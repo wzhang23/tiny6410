@@ -32,4 +32,4 @@ lib/libc.a:
 
 clean:
 	make clean -C lib
-	rm -f *.o *.elf *.bin *.dis *.out
+	rm -f *.o *.elf *.bin *.dis *.out *.map
