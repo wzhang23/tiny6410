@@ -28,7 +28,9 @@ reset:
 	str r1, [r0]
 
 	/* Initialize sp and call c funtion */
-	ldr sp, =8*1024
+	ldr sp, =8*1024 /* ARM stack pointer is Full Descending */
+									/* Means descending the sp firstly, then store data to stack */
+									/* So, here is 8192, not 8191 */
 
 	/* Initialize Clock */
 	bl clock_init 
@@ -43,12 +45,12 @@ reset:
 	adr r0, _start	/* _start current address: 0x0 */
 	ldr r1, =_start /* Link address: 0x50000000 */
 	ldr r2, =bss_start /* bss section start address */
-	sub r2, r2, r1
+	sub r2, r2, r1 /* r2 pass the third parameter of copy2ddr function */
 	
 	cmp r0, r1
 	beq clean_bss
 
-	bl copy2ddr
+	bl copy2ddr /* copy code and data section from Nand flash to DDR */
 	
 	/* clean bss section */
 clean_bss:
@@ -59,7 +61,7 @@ clean_loop:
 	str r2, [r0], #4
 	cmp r0, r1
 	bne clean_loop
-	ldr pc, =on_ddr
+	ldr pc, =on_ddr /* using location-relation code */
 
 on_ddr:
 	/* Initialize needed interrupt */
@@ -116,12 +118,30 @@ vector_swi:
 	/* 1. protect currect state */
 	ldr sp, =0x55000000
 	stmdb sp!, {r0-r12, lr} /* lr be the next instruction address */
+													/* stmdb would descending firstly, 'db' means decrement before. */
+													/* [lower address] 
+														 r0, 
+														 r1, 
+														 r2, 
+														 r3, 
+														 r4, 
+														 r5, 
+														 r6, 
+														 r7, 
+														 r8, 
+														 r9, 
+														 r10, 
+														 r11, 
+														 r12, 
+														 lr 
+														 [higher address] 
+													 */
 	/* 2. Handle exp. */
 	mrs r0, cpsr
 	ldr r1, =swi_str
 	bl print_cpsr
 	/* 3. Restore state */
-	ldmia sp!, {r0-r12, pc}^ /* ^ means restore spsr to cpsr */
+	ldmia sp!, {r0-r12, pc}^ /* ^ means restore spsr to cpsr. 'ia' means Increment after. */
 swi_str:
 	.word 0x00697773	/* swi */
 

@@ -4,6 +4,7 @@ SECTIONS
 	
 	.text : {
 		startup.o
+		* (.startup)
 		* (.text)
 	}
 

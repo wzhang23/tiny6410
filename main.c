@@ -12,6 +12,7 @@ void delay(INT32U ctr)
 		__asm__("MOV R0, R0");
 }
 
+INT8U interrupt_flag = 1;
 INT32S main(void)
 {
 	i = 0xf0;
@@ -22,14 +23,24 @@ INT32S main(void)
 
 	for(;;)
 	{
-		if(0x00 == i)
-			i = 0xf0;
-		i -= 0x10;
-		GPKDAT_REG = (GPKDAT_REG & ~0xf0) | i;
-		delay(3000000);
+		if(1 == interrupt_flag)
+		{
+			if(0x00 == i)
+				i = 0xf0;
+			i -= 0x10;
+			GPKDAT_REG = (GPKDAT_REG & ~0xf0) | i;
+			interrupt_flag = 0;
+		}
 	}
 
 	return 0;
+}
+
+void rtc_tick_isr(void)
+{
+	interrupt_flag = 1;
+	printf("Hello!\n\r");
+	INTP_REG |= 0x01;
 }
 
 void print_cpsr(INT16U cpsr, INT8U *str)

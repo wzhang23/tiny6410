@@ -1,11 +1,13 @@
 #include "common.h"
 #include "s3c6410.h"
 
+#define _init	__attribute__((section(".startup")))
+
 #define HCLK	133000000
 
 #define nstoclk(ns)	(ns/( 1000000000/HCLK)+1)
 
-void sdram_init( void )
+void _init sdram_init( void )
 {
 	// tell dramc to configure				
 	set_val( (ELFIN_DMC1_BASE + INDEX_DMC_MEMC_CMD), 0x4 );

@@ -8,12 +8,11 @@ OBJCOPY=$(CC_DIR)objcopy
 OBJDUMP=$(CC_DIR)objdump
 
 INCLUDEDIR := $(shell pwd)/include
-CFLAGS		:= -Wall -Os -fno-builtin-printf
-CPPFLAGS	:= -nostdinc -I$(INCLUDEDIR)
+CFLAGS		:= -Wall -fno-builtin -nostdinc -I$(INCLUDEDIR) -fno-builtin-printf -nostdlib -mcpu=arm1176jzf-s
 
-export CC AR LD NM OBJCOPY OBJDUMP INCLUDEDIR CFLAGS CPPFLAGS
+export CC AR LD NM OBJCOPY OBJDUMP INCLUDEDIR CFLAGS 
 
-objs	:= startup.o sdram.o nand.o clk.o uart.o main.o irq.o lib/libc.a
+objs	:= startup.o clk.o uart.o main.o irq.o lib/libc.a sdram.o nand.o
 
 main.bin:$(objs)
 	$(LD) -T main.lds -o main.elf $^
@@ -26,9 +25,9 @@ lib/libc.a:
 	cd lib; make; cd ..
 
 %.o:%.S
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) -c -o $@ $<
 %.o:%.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
 	make clean -C lib

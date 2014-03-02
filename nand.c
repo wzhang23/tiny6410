@@ -11,20 +11,22 @@
 /*
  * File scope macro define
  */
+/* Custom section for nand code */
+#define _init	__attribute__((section(".startup")))
 #define PAGE_SIZE	(8192)
 
 /*
  * Local function prototype
  */
-static void nand_select(void);
-static void nand_deselect(void);
-static void nand_cmd(unsigned char cmd);
-static void nand_addr(unsigned char addr);
-static unsigned char nand_get_data(void);
-static void nand_send_data(unsigned char data);
-static void nand_wait_ready(void);
-static void nand_reset(void);
-static void nand_send_addr(unsigned long addr);
+static _init void nand_select(void);
+static _init void nand_deselect(void);
+static _init void nand_cmd(unsigned char cmd);
+static _init void nand_addr(unsigned char addr);
+static _init unsigned char nand_get_data(void);
+static _init void nand_send_data(unsigned char data);
+static _init void nand_wait_ready(void);
+static _init void nand_reset(void);
+static _init void nand_send_addr(unsigned long addr);
 
 /*
  * Function Name:	nand_select
@@ -33,7 +35,7 @@ static void nand_send_addr(unsigned long addr);
  * Invoked			:	
  * Return				: None
  */
-static void nand_select(void)
+static _init void nand_select(void)
 {
 	NFCONT_REG &= ~(1<<1);
 }
@@ -45,7 +47,7 @@ static void nand_select(void)
  * Invoked			:	
  * Return				: None
  */
-static void nand_deselect(void)
+static _init void nand_deselect(void)
 {
 	NFCONT_REG |= (1<<1);
 }
@@ -57,7 +59,7 @@ static void nand_deselect(void)
  * Invoked			:	
  * Return				: None
  */
-static void nand_cmd(unsigned char cmd)
+static _init void nand_cmd(unsigned char cmd)
 {
 	NFCMD_REG = cmd;
 }
@@ -69,7 +71,7 @@ static void nand_cmd(unsigned char cmd)
  * Invoked			:	
  * Return				: None
  */
-static void nand_addr(unsigned char addr)
+static _init void nand_addr(unsigned char addr)
 {
 	NFADDR_REG = addr;
 }
@@ -81,7 +83,7 @@ static void nand_addr(unsigned char addr)
  * Invoked			:	
  * Return				: unsigned char - nand data
  */
-static unsigned char nand_get_data(void)
+static _init unsigned char nand_get_data(void)
 {
 	/* NOTE: NFDATA register must be defined as 1Byte data */
 	return NFDATA_REG;
@@ -94,7 +96,7 @@ static unsigned char nand_get_data(void)
  * Invoked			:	
  * Return				: None
  */
-static void nand_send_data(unsigned char data)
+static _init void nand_send_data(unsigned char data)
 {
 	NFDATA_REG = data;
 }
@@ -106,7 +108,7 @@ static void nand_send_data(unsigned char data)
  * Invoked			:	
  * Return				: None
  */
-static void nand_wait_ready(void)
+static _init void nand_wait_ready(void)
 {
 	while ((NFSTAT_REG & 0x1) == 0);
 }
@@ -118,7 +120,7 @@ static void nand_wait_ready(void)
  * Invoked			:	
  * Return				: None
  */
-static void nand_reset(void)
+static _init void nand_reset(void)
 {
 	nand_select();
 	
@@ -136,7 +138,7 @@ static void nand_reset(void)
  * Invoked			:	
  * Return				: None
  */
-void nand_init(void)
+void _init nand_init(void)
 {
 	GPOCON_REG = (GPOCON_REG & ~0x0f) | 0xa; // nCS[3:2]
 	GPOPUD_REG &= ~0xf;
@@ -165,7 +167,7 @@ void nand_init(void)
  * Invoked			:	
  * Return				: None
  */
-static void nand_send_addr(unsigned long addr)
+static _init void nand_send_addr(unsigned long addr)
 {
 #if 0
 	nand_addr(addr & 0xff);         /* a0~a7 */
@@ -194,7 +196,7 @@ static void nand_send_addr(unsigned long addr)
  * Invoked			:	
  * Return				: None
  */
-void nand_read(unsigned int nand_start, unsigned int ddr_start, unsigned int len)
+void _init nand_read(unsigned int nand_start, unsigned int ddr_start, unsigned int len)
 {
 	unsigned long rest = len;
 	unsigned long addr = nand_start;
@@ -230,7 +232,7 @@ void nand_read(unsigned int nand_start, unsigned int ddr_start, unsigned int len
  * Invoked			:	
  * Return				: None
  */
-void nand_erase_block(unsigned long addr)
+_init void nand_erase_block(unsigned long addr)
 {
 	int page = addr / PAGE_SIZE;
 	
@@ -256,7 +258,7 @@ void nand_erase_block(unsigned long addr)
  * Invoked			:	
  * Return				: None
  */
-void nand_write(unsigned int nand_start, unsigned char * buf, unsigned int len)
+_init void nand_write(unsigned int nand_start, unsigned char * buf, unsigned int len)
 {
 	unsigned long count = 0;
 	unsigned long addr  = nand_start;
@@ -293,7 +295,7 @@ void nand_write(unsigned int nand_start, unsigned char * buf, unsigned int len)
  * 								Otherwise, the code placed into page0(2k), page1(2k),..., even the page is
  * 								more than 2k(for example 8k). 
  */
-int copy2ddr(unsigned long nand_start, unsigned long ddr_start, unsigned long len)
+_init int copy2ddr(unsigned long nand_start, unsigned long ddr_start, unsigned long len)
 {
 	unsigned long rest = len;
 	unsigned long size;
@@ -301,7 +303,7 @@ int copy2ddr(unsigned long nand_start, unsigned long ddr_start, unsigned long le
 
 	nand_init();
 	/* Even the nand page size is 8k, the first 4 page hold 2k code. */
-	for(i = 0; i != 4; ++i)
+	for(i = 0; i != 8; ++i)
 	{
 		size = rest > 2048 ? 2048 : rest;
 		nand_read(PAGE_SIZE*i, ddr_start+i*2048, size);
@@ -311,7 +313,7 @@ int copy2ddr(unsigned long nand_start, unsigned long ddr_start, unsigned long le
 	}
 
 	/* Read the rest code from nand flash to SDRAM */
-	nand_read(PAGE_SIZE*4, ddr_start+PAGE_SIZE, rest);
+	nand_read(PAGE_SIZE*8, ddr_start+PAGE_SIZE*2, rest);
 
 	return 0;
 }
